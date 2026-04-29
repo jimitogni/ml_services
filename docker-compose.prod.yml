@@ -1,0 +1,7 @@
+services:
+  ml-service:
+    image: ghcr.io/jimitogni/ml_services:latest
+    container_name: clinic_ml_service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"

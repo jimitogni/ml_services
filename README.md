@@ -47,6 +47,7 @@ clinic-ml-service/
   requirements.txt
   Dockerfile
   docker-compose.yml
+  docker-compose.prod.yml
   .github/
     workflows/
       ci.yml
@@ -106,6 +107,34 @@ The service will be available at:
 http://localhost:8001
 ```
 
+## Pull Published Image
+
+After a successful push to `main`, GitHub Actions publishes the image to GitHub Container Registry:
+
+```text
+ghcr.io/jimitogni/ml_services:latest
+```
+
+Branch pushes also get branch tags, for example:
+
+```text
+ghcr.io/jimitogni/ml_services:dev
+ghcr.io/jimitogni/ml_services:main
+```
+
+On a server, pull and run the published image with:
+
+```bash
+docker pull ghcr.io/jimitogni/ml_services:latest
+docker compose -f docker-compose.prod.yml up -d
+```
+
+If the package is private, log in first:
+
+```bash
+echo YOUR_TOKEN | docker login ghcr.io -u jimitogni --password-stdin
+```
+
 ## API Endpoints
 
 `GET /health`
@@ -149,7 +178,7 @@ async def call_prediction_service(payload: dict):
 pytest
 ```
 
-## CI
+## CI/CD
 
 GitHub Actions runs on pushes and pull requests to `main` and `dev`.
 
@@ -158,6 +187,9 @@ The pipeline:
 1. Installs Python dependencies.
 2. Runs `pytest`.
 3. Builds the Docker image.
+4. Pushes the Docker image to GitHub Container Registry on `push` events.
+
+Pull requests build the image but do not publish it.
 
 ## Roadmap
 
@@ -166,5 +198,5 @@ The pipeline:
 3. Save the model with `joblib` and load it from the API.
 4. Add `POST /extract-exam-data` for OCR.
 5. Add model versioning with MLflow, DVC, S3, or MinIO.
-6. Add image publishing to GitHub Container Registry.
+6. Add automated home lab deployment.
 7. Add Jenkins after the GitHub Actions flow is working.
