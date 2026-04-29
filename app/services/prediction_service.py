@@ -1,4 +1,4 @@
- from app.models.predictor import PredictionRequest, PredictionResponse, RiskLevel
+from app.models.predictor import PredictionRequest, PredictionResponse, RiskLevel
 
 
 class RuleBasedPredictor:

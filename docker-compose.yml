@@ -1,0 +1,9 @@
+services:
+  ml-service:
+    build: .
+    container_name: clinic_ml_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./app:/app/app
+      - ./models:/app/models
