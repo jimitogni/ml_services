@@ -38,7 +38,7 @@ class RuleBasedPredictor:
     @staticmethod
     def _recommendation(risk_level: RiskLevel) -> str:
         if risk_level == "high":
-            return "Review required by healthcare professional"
+            return "Review required by healthcare professional - to dev"
         if risk_level == "medium":
             return "Monitor and review with clinical context"
         return "No immediate risk alert from current rule set"

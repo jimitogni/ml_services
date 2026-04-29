@@ -15,7 +15,7 @@ def test_predict_high_risk() -> None:
     assert response.json() == {
         "risk_score": 1.0,
         "risk_level": "high",
-        "recommendation": "Review required by healthcare professional",
+        "recommendation": "Review required by healthcare professional - to dev",
         "model_version": "v0.1-rule-based",
     }
 
