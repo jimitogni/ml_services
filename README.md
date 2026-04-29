@@ -115,12 +115,7 @@ After a successful push to `main`, GitHub Actions publishes the image to GitHub 
 ghcr.io/jimitogni/ml_services:latest
 ```
 
-Branch pushes also get branch tags, for example:
-
-```text
-ghcr.io/jimitogni/ml_services:dev
-ghcr.io/jimitogni/ml_services:main
-```
+Pushes to `dev` and pull requests still run tests and build the image, but they do not publish images.
 
 On a server, pull and run the published image with:
 
@@ -187,9 +182,9 @@ The pipeline:
 1. Installs Python dependencies.
 2. Runs `pytest`.
 3. Builds the Docker image.
-4. Pushes the Docker image to GitHub Container Registry on `push` events.
+4. Pushes the Docker image to GitHub Container Registry when code is pushed to `main`.
 
-Pull requests build the image but do not publish it.
+Pull requests and `dev` pushes build the image but do not publish it.
 
 ## Roadmap
 
