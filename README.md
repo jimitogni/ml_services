@@ -1,0 +1,2 @@
+ok, thanks, how could I get this entire code you create and send it to my vscode which is runing codex agent to create it on my envirorment?
+wheyHey Chat, could you tell me please how can I start to work with machine learning models? And I'd like to have it in a different container and in a different GitHub repository. And I'd like to see if it's possible we implement the CI/CD pipeline using Git actions. And after that, I'd like to use Jenkins. So could you guide me through these steps, please?
