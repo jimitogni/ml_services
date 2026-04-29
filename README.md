@@ -1,2 +1,170 @@
-ok, thanks, how could I get this entire code you create and send it to my vscode which is runing codex agent to create it on my envirorment?
-wheyHey Chat, could you tell me please how can I start to work with machine learning models? And I'd like to have it in a different container and in a different GitHub repository. And I'd like to see if it's possible we implement the CI/CD pipeline using Git actions. And after that, I'd like to use Jenkins. So could you guide me through these steps, please?
+# Clinic ML Service
+
+FastAPI service for machine learning inference, OCR experiments, and AI-assisted clinical risk alerts.
+
+This repository is intended to run separately from the main clinic backend. The backend should call this service over HTTP instead of running heavy ML work directly.
+
+## Architecture
+
+```text
+User / Browser
+  -> Frontend - Next.js
+  -> Backend API - FastAPI
+  -> ML Service - FastAPI / Python model API
+  -> Model files / OCR / prediction logic
+```
+
+Typical flow:
+
+1. The backend receives exam data or an exam image.
+2. The backend saves the original file or structured data.
+3. The backend calls this ML service.
+4. The ML service returns extracted values or a prediction.
+5. The backend saves the reviewed result in PostgreSQL.
+
+For healthcare workflows, OCR and prediction output should be reviewed by a healthcare professional before becoming official patient data.
+
+## Project Structure
+
+```text
+clinic-ml-service/
+  app/
+    main.py
+    api/
+      routes.py
+    models/
+      predictor.py
+    services/
+      ocr_service.py
+      prediction_service.py
+    core/
+      config.py
+  tests/
+    test_health.py
+    test_predict.py
+  models/
+    README.md
+  requirements.txt
+  Dockerfile
+  docker-compose.yml
+  .github/
+    workflows/
+      ci.yml
+```
+
+## Run Locally
+
+Create a virtual environment and install dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Start the API on port `8001`:
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+```
+
+Health check:
+
+```bash
+curl http://localhost:8001/health
+```
+
+Prediction example:
+
+```bash
+curl -X POST http://localhost:8001/predict \
+  -H "Content-Type: application/json" \
+  -d '{"age": 65, "glucose": 140, "hemoglobin": 11.5}'
+```
+
+Expected response:
+
+```json
+{
+  "risk_score": 1.0,
+  "risk_level": "high",
+  "recommendation": "Review required by healthcare professional",
+  "model_version": "v0.1-rule-based"
+}
+```
+
+## Run With Docker
+
+```bash
+docker compose up --build
+```
+
+The service will be available at:
+
+```text
+http://localhost:8001
+```
+
+## API Endpoints
+
+`GET /health`
+
+Returns service health information.
+
+`POST /predict`
+
+Runs the first rule-based risk predictor. This is not a final medical model. It exists to prove the service architecture before replacing the rules with a trained model.
+
+Request body:
+
+```json
+{
+  "age": 65,
+  "glucose": 140,
+  "hemoglobin": 11.5
+}
+```
+
+## Backend Integration Example
+
+When this service runs in the same Docker network as the backend, the backend can call it by service name:
+
+```python
+import httpx
+
+ML_SERVICE_URL = "http://ml-service:8001"
+
+
+async def call_prediction_service(payload: dict):
+    async with httpx.AsyncClient() as client:
+        response = await client.post(f"{ML_SERVICE_URL}/predict", json=payload)
+        response.raise_for_status()
+        return response.json()
+```
+
+## Tests
+
+```bash
+pytest
+```
+
+## CI
+
+GitHub Actions runs on pushes and pull requests to `main` and `dev`.
+
+The pipeline:
+
+1. Installs Python dependencies.
+2. Runs `pytest`.
+3. Builds the Docker image.
+
+## Roadmap
+
+1. Keep `/health` and `/predict` stable.
+2. Train a first simple model with Logistic Regression, Random Forest, or XGBoost.
+3. Save the model with `joblib` and load it from the API.
+4. Add `POST /extract-exam-data` for OCR.
+5. Add model versioning with MLflow, DVC, S3, or MinIO.
+6. Add image publishing to GitHub Container Registry.
+7. Add Jenkins after the GitHub Actions flow is working.
